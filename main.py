@@ -6,4 +6,4 @@ if __name__ == "__main__":
     print(config)
 
     consumer1 = consumer(config["source"], config["storageType"], config["destination"])
-    consumer1.printSelf()
+    consumer1.listen()
