@@ -8,7 +8,7 @@ class consumer():
         self.storageType = storageType
         self.destination = destination
         self.sourceClient = boto3.client('s3')
-        self.destClient = boto3.client(storageType)
+        self.destClient = boto3.client(storageType, region_name="us-east-1")
 
     def listen(self):
         timeEnd = time.time() + 30
@@ -54,4 +54,18 @@ class consumer():
             widget_key = f"widgets/{owner}/{widget['widgetId']}"
             self.destClient.put_object(Bucket=self.destination, Key=widget_key, Body=json.dumps(widget))
         else:
-            
+            item = {
+                'id': {'S': widget['widgetId']},
+                'owner': {'S': widget['owner']},
+                'label': {'S': widget['label']},
+                'description': {'S': widget['description']}
+            }
+
+            # Handle otherAttributes
+            if 'otherAttributes' in widget:
+                for attribute in widget['otherAttributes']:
+                    item[attribute['name']] = {'S': attribute['value']}
+
+            print(item)
+
+            self.destClient.put_item(TableName=self.destination, Item=item)
